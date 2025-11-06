@@ -11,6 +11,11 @@ export default function Menu() {
         <View style={styles.container}>
             <View style={styles.wrapButton}>
                 <CustomButton
+                    title='Home'
+                    backgroundColor={colors.warning}
+                    onPress={() => router.push('/')}
+                />
+                <CustomButton
                     title='Kolom'
                     backgroundColor={colors.primary}
                     onPress={() => router.push('/Kolom')}
@@ -19,6 +24,11 @@ export default function Menu() {
                     title='Baris'
                     backgroundColor={colors.purlple}
                     onPress={() => router.push('/Baris')}
+                />
+                <CustomButton
+                    title='Position'
+                    backgroundColor={colors.success}
+                    onPress={() => router.push('/Position')}
                 />
             </View>
         </View>
@@ -34,7 +44,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background
     },
     wrapButton: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         gap: 10, // Menambahkan gap antara tombol

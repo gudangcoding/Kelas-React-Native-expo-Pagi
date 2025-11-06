@@ -10,6 +10,7 @@ const colors = {
   success: '#4CAF50',
   danger: '#e53935',
   purlple:'#d433e3ff',
+  warning: '#ff9800',
   transparentBlack10: 'rgba(0,0,0,0.1)',
   transparentBlack70: 'rgba(0,0,0,0.7)'
 };
