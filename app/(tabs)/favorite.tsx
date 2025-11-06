@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-export default function Home() {
+export default function Favorite() {
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -12,7 +12,7 @@ export default function Home() {
         end={{ x: 1, y: 1 }}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Home</Text>
+          <Text style={styles.title}>Favorites</Text>
         </View>
       </LinearGradient>
     </View>
