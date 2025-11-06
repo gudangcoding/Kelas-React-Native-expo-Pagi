@@ -26,7 +26,7 @@ export default function Index() {
 
     // Navigate to login after 2 seconds
     const timer = setTimeout(() => {
-      router.replace('/Menu');
+      router.replace('/login');
     }, 2000);
 
     return () => clearTimeout(timer);

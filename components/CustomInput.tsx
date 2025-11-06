@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     focused: {
     borderColor: colors.primary,
         borderWidth: 2,
+        backgroundColor: colors.white,
     },
 });
 
