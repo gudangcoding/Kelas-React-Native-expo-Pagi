@@ -6,7 +6,7 @@ import colors from '../constants/colors';
 
 export default function TabsLayout() {
   return (
-    <Tabs
+  <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
@@ -24,28 +24,12 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="favorite"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Feather name="heart" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="search"
         options={{
           tabBarIcon: ({ color }) => (
             <View style={styles.searchButton}>
               <Feather name="search" size={24} color="#fff" />
             </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="cart"
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Feather name="shopping-cart" size={24} color={color} />
           ),
         }}
       />
