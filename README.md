@@ -4,30 +4,30 @@ Repository ini berisi materi dan contoh aplikasi untuk kelas Coding Advance meng
 
 Website LKP Naura: https://lkpnaura.com
 
-## Get started
+## Cara Memulai
 
-1. Install dependencies
+1. Instal dependensi
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Jalankan aplikasi
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+Saat dijalankan, Anda akan melihat opsi untuk membuka aplikasi di:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Expo Go](https://expo.dev/go), sandbox terbatas untuk mencoba pengembangan dengan Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Anda dapat mulai mengembangkan dengan mengedit berkas di direktori **app**. Proyek ini menggunakan [routing berbasis berkas](https://docs.expo.dev/router/introduction) melalui `expo-router`.
 
-## Get a fresh project
+## Reset Proyek (Opsional)
 
 When you're ready, run:
 
@@ -35,21 +35,21 @@ When you're ready, run:
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Perintah ini akan memindahkan kode starter ke direktori **app-example** dan membuat direktori **app** kosong tempat Anda dapat mulai mengembangkan.
 
-## Learn more
+## Referensi Belajar
 
-To learn more about developing your project with Expo, look at the following resources:
+Untuk mempelajari lebih lanjut pengembangan proyek dengan Expo, lihat sumber berikut:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- [Dokumentasi Expo](https://docs.expo.dev/): Pelajari dasar-dasar, atau topik lanjutan melalui [panduan](https://docs.expo.dev/guides).
+- [Tutorial Learn Expo](https://docs.expo.dev/tutorial/introduction/): Tutorial langkah demi langkah untuk membuat proyek yang berjalan di Android, iOS, dan web.
 
-## Join the community
+## Komunitas
 
-Join our community of developers creating universal apps.
+Gabung komunitas pengembang yang membuat aplikasi universal.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo di GitHub](https://github.com/expo/expo): Lihat platform open source dan berkontribusi.
+- [Discord community](https://chat.expo.dev): Berdiskusi dengan pengguna Expo dan ajukan pertanyaan.
 
 ## Tangkapan Layar
 Berikut beberapa tampilan utama aplikasi (gambar ada di folder `skrinsut/`):
