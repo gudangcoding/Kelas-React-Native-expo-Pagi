@@ -48,3 +48,14 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Tangkapan Layar
+Berikut beberapa tampilan utama aplikasi (gambar ada di folder `skrinsut/`):
+
+![Login](skrinsut/login.png)
+![Register](skrinsut/register.png)
+![Dashboard/Home](skrinsut/dashboard.png)
+![Profil](skrinsut/profil.png)
+![Edit Profil](skrinsut/edit%20profile.png)
+![Wishlist](skrinsut/whislist.png)
+![Produk Detail](skrinsut/Produk%20Detail.png)

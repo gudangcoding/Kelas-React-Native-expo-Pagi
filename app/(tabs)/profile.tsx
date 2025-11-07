@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Pressable, ScrollView, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
 import colors from '@/app/constants/colors';
 import CustomChipScroll from '@/components/CustomChipScroll';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type RangeKey = '7d' | '30d' | '12m';
 
@@ -453,5 +453,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.black,
+  },
+  shadow: {
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2.5,
   },
 });
