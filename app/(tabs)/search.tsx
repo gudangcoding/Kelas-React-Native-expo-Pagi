@@ -2,12 +2,14 @@ import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 import CustomProductCard from '@/components/CustomProductCard';
 import { useAppDispatch, useAppSelector } from '@/redux/store';
 import { searchProductsThunk } from '@/redux/slices/productSlice';
 
 export default function Search() {
   const [query, setQuery] = useState('');
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { searchResults, loading } = useAppSelector((s) => s.product);
 
@@ -75,7 +77,7 @@ export default function Search() {
                 containerStyle={{ width: '48%', marginBottom: 12 }}
                 onPressCart={() => {}}
                 onPressLike={() => {}}
-                onPressCard={() => {}}
+                onPressCard={() => router.push({ pathname: '/productDetail', params: { id: String(p.id) } })}
               />
             ))}
           </View>

@@ -17,12 +17,8 @@ export const createOrderThunk = createAsyncThunk(
   'order/create',
   async (payload: any, { rejectWithValue }) => {
     try {
-      const res = await api.apiFetch('/v1/orders', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      return res?.data ?? res;
+      const res = await api.createOrder(payload);
+      return (res as any).data ?? res;
     } catch (err: any) {
       return rejectWithValue(err?.message ?? 'Gagal membuat pesanan');
     }
@@ -33,8 +29,8 @@ export const refundOrderThunk = createAsyncThunk(
   'order/refund',
   async (orderId: string, { rejectWithValue }) => {
     try {
-      const res = await api.apiFetch(`/v1/orders/${orderId}/refund`, { method: 'POST' });
-      return res?.data ?? res;
+      const res = await api.refundOrder(orderId);
+      return (res as any).data ?? res;
     } catch (err: any) {
       return rejectWithValue(err?.message ?? 'Gagal refund pesanan');
     }

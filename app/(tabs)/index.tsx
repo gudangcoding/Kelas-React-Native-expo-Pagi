@@ -204,7 +204,7 @@ export default function Home() {
                 containerStyle={{ width: 170, marginRight: 12 }}
                 onPressCart={() => {}}
                 onPressLike={() => {}}
-                onPressCard={() => router.push('/productDetail')}
+                onPressCard={() => router.push({ pathname: '/productDetail', params: { id: String(p.id) } })}
               />
             ))}
           </ScrollView>
@@ -236,7 +236,7 @@ export default function Home() {
                 containerStyle={{ width: '48%', marginBottom: 12 }}
                 onPressCart={() => {}}
                 onPressLike={() => {}}
-                onPressCard={() => router.push('/productDetail')}
+                onPressCard={() => router.push({ pathname: '/productDetail', params: { id: String(p.id) } })}
               />
             ))}
           </View>
