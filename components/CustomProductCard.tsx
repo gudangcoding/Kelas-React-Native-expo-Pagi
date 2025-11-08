@@ -51,9 +51,8 @@ const CustomProductCard: React.FC<CustomProductCardProps> = ({
 
       <View style={styles.content}>
         <Text numberOfLines={2} style={styles.title}>{title}</Text>
-        <Text style={styles.price}>{formatPrice(price)}</Text>
 
-        <View style={styles.rowBetween}>
+        <View style={[styles.rowBetween, { marginTop: 4 }]}>
           <View style={styles.rowLeft}>
             <View style={styles.ratingWrap}>
               <Feather name="star" size={16} color={colors.warning} />
@@ -65,7 +64,10 @@ const CustomProductCard: React.FC<CustomProductCardProps> = ({
               <Text style={styles.likeCount}>{likeCount}</Text>
             </Pressable>
           </View>
+        </View>
 
+        <View style={[styles.rowBetween, { marginTop: 8 }]}>
+          <Text style={styles.price}>{formatPrice(price)}</Text>
           <Pressable style={styles.cartButton} onPress={onPressCart}>
             <Feather name="shopping-cart" size={18} color={colors.white} />
           </Pressable>

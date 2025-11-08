@@ -1,80 +1,82 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router } from 'expo-router';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { registerThunk } from '@/redux/slices/authSlice';
 import colors from './constants/colors';
 
-export default class Register extends Component {
-  state = {
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+export default function Register() {
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((s) => s.auth);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword) {
+      alert('Semua field wajib diisi.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert('Konfirmasi password tidak cocok.');
+      return;
+    }
+    const action = await dispatch(
+      registerThunk({ name, email, password, password_confirmation: confirmPassword })
+    );
+    if (registerThunk.fulfilled.match(action)) {
+      router.replace('/(tabs)');
+    }
   };
 
-  render() {
-    return (
-      <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1080' }}
-        style={styles.container}
-      >
-        <Stack.Screen options={{ headerShown: false }} />
-        <LinearGradient
-          colors={[colors.transparentBlack10, colors.transparentBlack70]}
-          style={styles.gradient}
-        >
-          <View style={styles.logoContainer}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>LOGO</Text>
-            </View>
+  return (
+    <ImageBackground
+      source={{ uri: 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1080' }}
+      style={styles.container}
+    >
+      <Stack.Screen options={{ headerShown: false }} />
+      <LinearGradient colors={[colors.transparentBlack10, colors.transparentBlack70]} style={styles.gradient}>
+        <View style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoText}>LOGO</Text>
           </View>
-          
-          <CustomInput
-            label="Full Name"
-            value={this.state.name}
-            onChangeText={(text) => this.setState({ name: text })}
-            placeholder="Enter your full name"
+        </View>
+
+        <CustomInput label="Full Name" value={name} onChangeText={setName} placeholder="Enter your full name" />
+        <CustomInput label="Email" value={email} onChangeText={setEmail} placeholder="Enter your email" />
+        <CustomInput
+          label="Password"
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Enter your password"
+          secureTextEntry
+        />
+        <CustomInput
+          label="Confirm Password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder="Confirm your password"
+          secureTextEntry
+        />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            title="Register"
+            onPress={handleRegister}
+            style={styles.button}
+            backgroundColor={colors.success}
+            disabled={loading}
           />
-          <CustomInput
-            label="Email"
-            value={this.state.email}
-            onChangeText={(text) => this.setState({ email: text })}
-            placeholder="Enter your email"
-          />
-          <CustomInput
-            label="Password"
-            value={this.state.password}
-            onChangeText={(text) => this.setState({ password: text })}
-            placeholder="Enter your password"
-            secureTextEntry
-          />
-          <CustomInput
-            label="Confirm Password"
-            value={this.state.confirmPassword}
-            onChangeText={(text) => this.setState({ confirmPassword: text })}
-            placeholder="Confirm your password"
-            secureTextEntry
-          />
-          
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title="Register"
-              onPress={() => {}}
-              style={styles.button}
-              backgroundColor={colors.success}
-            />
-            <CustomButton
-              title="Back to Login"
-              onPress={() => router.back()}
-              style={styles.button}
-            />
-          </View>
-        </LinearGradient>
-      </ImageBackground>
-    );
-  }
+          <CustomButton title="Back to Login" onPress={() => router.back()} style={styles.button} />
+        </View>
+      </LinearGradient>
+    </ImageBackground>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -123,5 +125,11 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 5,
+  },
+  errorText: {
+    color: '#ff5252',
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 20,
   }
 });

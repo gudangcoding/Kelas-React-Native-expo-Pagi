@@ -2,13 +2,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { useAppSelector } from '@/redux/store';
 
 export default function Index() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.3)).current;
-  const token = useAppSelector((s) => s.auth.token);
 
   useEffect(() => {
     // Start animations
@@ -26,14 +24,13 @@ export default function Index() {
       }),
     ]).start();
 
-    // Redirect berdasarkan token di Redux: jika ada -> dashboard, jika tidak -> login
-    const target = token ? '/(tabs)' : '/login';
+    // Navigate to login after 2 seconds
     const timer = setTimeout(() => {
-      router.replace(target);
-    }, 1200);
+      router.replace('/login');
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, [token]);
+  }, []);
 
   return (
     <ImageBackground

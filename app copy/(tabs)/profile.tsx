@@ -3,8 +3,6 @@ import CustomChipScroll from '@/components/CustomChipScroll';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useAppDispatch } from '@/redux/store';
-import { logoutThunk } from '@/redux/slices/authSlice';
 import React, { useMemo, useState } from 'react';
 import { Image, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -25,7 +23,6 @@ interface ShipmentItem {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const [range, setRange] = useState<RangeKey>('30d');
 
   const now = Date.now();
@@ -84,10 +81,7 @@ export default function ProfilePage() {
   const formatCurrency = (n: number) => `Rp ${n.toLocaleString('id-ID')}`;
 
 const onPressEdit = () => router.push('/editProfile');
-  const onPressSignOut = async () => {
-    await dispatch(logoutThunk());
-    router.replace('/login');
-  };
+  const onPressSignOut = () => router.replace('/login');
 
   return (
     <SafeAreaView style={styles.safeArea}>

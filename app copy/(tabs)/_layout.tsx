@@ -1,19 +1,10 @@
 import { Feather } from '@expo/vector-icons';
-import { Tabs, router } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import colors from '../constants/colors';
-import { useAppSelector } from '@/redux/store';
-
-import { useEffect } from 'react';
 
 export default function TabsLayout() {
-  const token = useAppSelector((s) => s.auth.token);
-  useEffect(() => {
-    if (!token) {
-      router.replace('/login');
-    }
-  }, [token]);
   return (
   <Tabs
       screenOptions={{
