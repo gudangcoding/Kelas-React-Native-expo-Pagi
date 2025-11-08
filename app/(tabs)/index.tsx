@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import CircleAvatar from '@/components/CircleAvatar';
-import CustomSearch from '@/components/CustomSearch';
 import CustomChipScroll from '@/components/CustomChipScroll';
 import CustomProductCard from '@/components/CustomProductCard';
-import colors from '../constants/colors';
-import { Link, useRouter } from 'expo-router';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { fetchProductsThunk } from '@/redux/slices/productSlice';
+import CustomSearch from '@/components/CustomSearch';
 import { fetchCategoriesThunk } from '@/redux/slices/categoriesSlice';
+import { fetchProductsThunk } from '@/redux/slices/productSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { Link, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import colors from '../constants/colors';
 
 export default function Home() {
   const [query, setQuery] = useState('');
@@ -20,60 +20,46 @@ export default function Home() {
   const { items: categoryItems, loading: catLoading } = useAppSelector((s) => s.categories);
 
   const categories = useMemo(() => {
-    const mapped = (categoryItems || []).map((c: any) => ({
+    const raw = Array.isArray(categoryItems)
+      ? categoryItems
+      : Array.isArray((categoryItems as any)?.data)
+      ? (categoryItems as any).data
+      : [];
+    const mapped = raw.map((c: any) => ({
       label: c?.name ?? c?.label ?? String(c?.slug ?? c?.id ?? c?.value ?? ''),
       value: c?.slug ?? c?.id ?? c?.value ?? (c?.name ?? ''),
     }));
     return [{ label: 'Semua', value: 'all' }, ...mapped];
   }, [categoryItems]);
 
-  const promoProducts = [
-    {
-      id: 'pp1',
-      title: 'Kamera Mirrorless 24MP + Lensa Kit',
-      price: 4250000,
-      ratingValue: 4.7,
-      ratingCount: 212,
-      likeCount: 86,
-      image: require('../../assets/images/react-logo.png'),
-    },
-    {
-      id: 'pp2',
-      title: 'Sepatu Lari Ringan Pria',
-      price: 315000,
-      ratingValue: 4.4,
-      ratingCount: 98,
-      likeCount: 45,
-      image: require('../../assets/images/icon.png'),
-    },
-    {
-      id: 'pp3',
-      title: 'Headphone Wireless ANC 30 Jam',
-      price: 899000,
-      ratingValue: 4.6,
-      ratingCount: 157,
-      likeCount: 63,
+  const promoProducts = useMemo(() => {
+    const raw = Array.isArray(productItems) ? productItems : [];
+    const sortedRaw = raw.slice().sort((a: any, b: any) => {
+      const getTime = (x: any) => {
+        const t = x?.created_at ?? x?.createdAt ?? x?.updated_at ?? x?.updatedAt ?? null;
+        const n = t ? Date.parse(String(t)) : NaN;
+        return Number.isNaN(n) ? 0 : n;
+      };
+      const tb = getTime(b);
+      const ta = getTime(a);
+      if (tb !== ta) return tb - ta; // terbaru duluan
+      const ib = Number(b?.id);
+      const ia = Number(a?.id);
+      if (!Number.isNaN(ib) && !Number.isNaN(ia)) return ib - ia;
+      return 0;
+    });
+    const mapped = sortedRaw.map((p: any) => ({
+      id: p.id,
+      title: p.name ?? p.title ?? 'Produk',
+      price: Number(p.base_price ?? p.price ?? 0),
+      ratingValue: Number(p.rating ?? p.ratingValue ?? 0),
+      ratingCount: Number(p.rating_count ?? p.ratingCount ?? 0),
+      likeCount: Number(p.like_count ?? p.likeCount ?? 0),
       image: require('../../assets/images/default-logo.png'),
-    },
-    {
-      id: 'pp4',
-      title: 'Blender Dapur 1.5L 500W',
-      price: 275000,
-      ratingValue: 4.3,
-      ratingCount: 64,
-      likeCount: 29,
-      image: require('../../assets/images/partial-react-logo.png'),
-    },
-    {
-      id: 'pp5',
-      title: 'Smartwatch Health Tracker',
-      price: 599000,
-      ratingValue: 4.5,
-      ratingCount: 120,
-      likeCount: 52,
-      image: require('../../assets/images/android-icon-foreground.png'),
-    },
-  ];
+    }));
+    // Ambil sebagian untuk ditampilkan sebagai promo
+    return mapped.slice(0, 10);
+  }, [productItems]);
 
   useEffect(() => {
     dispatch(fetchProductsThunk());
@@ -83,21 +69,8 @@ export default function Home() {
   const displayPromo = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = q ? promoProducts.filter((p) => p.title.toLowerCase().includes(q)) : promoProducts.slice();
-    const sorted = filtered.sort((a, b) => {
-      switch (sortKey) {
-        case 'name_asc':
-          return a.title.localeCompare(b.title);
-        case 'name_desc':
-          return b.title.localeCompare(a.title);
-        case 'price_asc':
-          return Number(a.price) - Number(b.price);
-        case 'price_desc':
-          return Number(b.price) - Number(a.price);
-        default:
-          return 0;
-      }
-    });
-    return sorted;
+    // Sudah disort berdasar waktu terbaru di promoProducts; tidak perlu sorter lain
+    return filtered;
   }, [promoProducts, query, sortKey]);
 
   const displayPopular = useMemo(() => {
@@ -183,7 +156,7 @@ export default function Home() {
       <View style={styles.content}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Promo Hari Ini</Text>
+            <Text style={styles.sectionTitle}>Produk Terbaru</Text>
             <Link href="/search" style={styles.seeAll}>See All</Link>
           </View>
 
@@ -192,7 +165,20 @@ export default function Home() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalList}
           >
-            {displayPromo.slice(0, 5).map((p) => (
+            {productLoading && (
+              <>
+                <View style={{ width: 170, height: 200, marginRight: 12, backgroundColor: '#eee', borderRadius: 12 }} />
+                <View style={{ width: 170, height: 200, marginRight: 12, backgroundColor: '#eee', borderRadius: 12 }} />
+                <View style={{ width: 170, height: 200, marginRight: 12, backgroundColor: '#eee', borderRadius: 12 }} />
+                <View style={{ width: 170, height: 200, marginRight: 12, backgroundColor: '#eee', borderRadius: 12 }} />
+              </>
+            )}
+            {!productLoading && displayPromo.slice(0, 5).length === 0 && (
+              <View style={{ paddingHorizontal: 8 }}>
+                <Text style={{ color: colors.gray }}>Tidak ada produk terbaru.</Text>
+              </View>
+            )}
+            {!productLoading && displayPromo.slice(0, 5).map((p) => (
               <CustomProductCard
                 key={p.id}
                 image={p.image}
@@ -285,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    padding: 20,
+    padding: 0,
   },
   sectionHeader: {
     flexDirection: 'row',

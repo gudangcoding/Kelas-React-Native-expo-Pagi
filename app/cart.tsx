@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Stack, useRouter, useNavigation } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import colors from '@/app/constants/colors';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { increment, decrement, removeItem } from '@/redux/slices/cartSlice';
 
 type CartItem = {
   id: string;
@@ -26,6 +28,7 @@ const formatPrice = (price: number) => {
 export default function Cart() {
   const router = useRouter();
   const navigation = useNavigation();
+  const dispatch = useAppDispatch();
   const handleBack = () => {
     if (typeof navigation?.canGoBack === 'function' && navigation.canGoBack()) {
       router.back();
@@ -34,20 +37,11 @@ export default function Cart() {
     }
   };
 
-  const [items, setItems] = useState<CartItem[]>([
-    { id: '1', name: 'Kamera Mirrorless 24MP', price: 4250000, qty: 1 },
-    { id: '2', name: 'Lensa Kit 15-45mm', price: 850000, qty: 2 },
-    { id: '3', name: 'Tas Kamera Premium', price: 250000, qty: 1 },
-  ]);
+  const items = useAppSelector((s) => s.cart.items);
 
   const total = useMemo(() => items.reduce((sum, i) => sum + i.price * i.qty, 0), [items]);
 
-  const increment = (id: string) => {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i)));
-  };
-  const decrement = (id: string) => {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty: Math.max(0, i.qty - 1) } : i)));
-  };
+  // kontrol qty akan mempertimbangkan kombinasi id+variant+size
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -69,12 +63,36 @@ export default function Cart() {
                 <Text style={styles.itemPrice}>{formatPrice(item.price)}</Text>
               </View>
               <View style={styles.qtyControls}>
-                <Pressable style={styles.qtyBtn} onPress={() => decrement(item.id)}>
+                <Pressable
+                  style={styles.qtyBtn}
+                  onPress={() =>
+                    dispatch(
+                      decrement({ id: item.id, variant: item.variant ?? null, size: item.size ?? null })
+                    )
+                  }
+                >
                   <Feather name="minus" size={16} color={colors.grayDark} />
                 </Pressable>
                 <Text style={styles.qtyValue}>{item.qty}</Text>
-                <Pressable style={styles.qtyBtn} onPress={() => increment(item.id)}>
+                <Pressable
+                  style={styles.qtyBtn}
+                  onPress={() =>
+                    dispatch(
+                      increment({ id: item.id, variant: item.variant ?? null, size: item.size ?? null })
+                    )
+                  }
+                >
                   <Feather name="plus" size={16} color={colors.grayDark} />
+                </Pressable>
+                <Pressable
+                  style={[styles.qtyBtn, { marginLeft: 6 }]}
+                  onPress={() =>
+                    dispatch(
+                      removeItem({ id: item.id, variant: item.variant ?? null, size: item.size ?? null })
+                    )
+                  }
+                >
+                  <Feather name="trash-2" size={16} color={colors.grayDark} />
                 </Pressable>
               </View>
             </View>
@@ -88,7 +106,12 @@ export default function Cart() {
           </View>
           <Pressable
             style={styles.payBtn}
-            onPress={() => router.push({ pathname: '/payment', params: { total: String(total) } })}
+            onPress={() =>
+              router.push({
+                pathname: '/payment',
+                params: { total: String(total), items: JSON.stringify(items) },
+              })
+            }
           >
             <Feather name="credit-card" size={18} color={colors.onPrimary} />
             <Text style={styles.payText}>Bayar</Text>

@@ -1,6 +1,6 @@
+import { Feather } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import colors from '../app/constants/colors';
 
 export interface CustomProductCardProps {
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     height: 140,
   },
   content: {
-    padding: 12,
+    padding: 0,
   },
   title: {
     fontSize: 14,

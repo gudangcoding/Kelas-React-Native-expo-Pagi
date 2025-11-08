@@ -3,6 +3,9 @@ import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-rout
 import React, { useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import colors from './constants/colors';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { createOrderThunk } from '@/redux/slices/orderSlice';
+import { fetchCouriersThunk } from '@/redux/slices/shipmentSlice';
 
 type Option = { key: string; label: string };
 
@@ -36,6 +39,10 @@ export default function Payment() {
   const router = useRouter();
   const navigation = useNavigation();
   const params = useLocalSearchParams();
+  const dispatch = useAppDispatch();
+  const { loading: orderLoading, error: orderError, lastOrder } = useAppSelector((s) => s.order);
+  const cartItems = useAppSelector((s) => s.cart.items);
+  const couriers = useAppSelector((s) => s.shipment.couriers);
   const total = useMemo(() => {
     const t = Number(params?.total);
     return Number.isFinite(t) && t > 0 ? t : 0;
@@ -45,6 +52,25 @@ export default function Payment() {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [shipping, setShipping] = useState<Option>(shippingOptions[0]);
   const [payment, setPayment] = useState<Option>(paymentOptions[0]);
+
+  const itemsFromParams = useMemo(() => {
+    try {
+      const raw = params?.items ? String(params.items) : '[]';
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [params?.items]);
+
+  const items = cartItems && cartItems.length > 0 ? cartItems : itemsFromParams;
+
+  React.useEffect(() => {
+    // Ambil daftar kurir jika belum ada
+    if (!couriers || couriers.length === 0) {
+      dispatch(fetchCouriersThunk());
+    }
+  }, [dispatch]);
 
   const handleBack = () => {
     if (typeof navigation?.canGoBack === 'function' && navigation.canGoBack()) {
@@ -62,6 +88,18 @@ export default function Payment() {
   const selectPayment = (opt: Option) => {
     setPayment(opt);
     setPaymentOpen(false);
+  };
+
+  const onConfirm = async () => {
+    // payload mengikuti format API doc
+    const payload = {
+      origin: 'Jakarta',
+      destination: 'Bandung',
+      weight: 1000,
+      courier: shipping.key,
+      items: items.map((it: any) => ({ id: Number(it.id), product_variant_id: null, quantity: Number(it.qty) })),
+    };
+    await dispatch(createOrderThunk(payload));
   };
 
   return (
@@ -90,7 +128,7 @@ export default function Payment() {
             </Pressable>
             {shippingOpen && (
               <View style={styles.dropdown}>
-                {shippingOptions.map((opt) => (
+                {(couriers && couriers.length > 0 ? couriers.map((c: any) => ({ key: String(c?.code ?? c?.key ?? c), label: String(c?.name ?? c?.label ?? c) })) : shippingOptions).map((opt) => (
                   <Pressable key={opt.key} style={styles.dropdownItem} onPress={() => selectShipping(opt)}>
                     <Text style={styles.dropdownText}>{opt.label}</Text>
                   </Pressable>
@@ -122,11 +160,21 @@ export default function Payment() {
             <Text style={styles.totalLabel}>Total Bayar</Text>
             <Text style={styles.totalFooterValue}>{formatPrice(total)}</Text>
           </View>
-          <Pressable style={styles.confirmBtn} onPress={() => {}}>
+          <Pressable style={[styles.confirmBtn, orderLoading && { opacity: 0.7 }]} onPress={onConfirm} disabled={orderLoading}>
             <Feather name="check-circle" size={18} color={colors.onPrimary} />
             <Text style={styles.confirmText}>Konfirmasi</Text>
           </Pressable>
         </View>
+        {orderError && (
+          <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+            <Text style={{ color: colors.danger }}>{orderError}</Text>
+          </View>
+        )}
+        {lastOrder && (
+          <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+            <Text style={{ color: colors.success }}>Order dibuat.</Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -1,11 +1,12 @@
+import { registerThunk } from '@/redux/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/store';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router } from 'expo-router';
 import React, { useState } from 'react';
 import { ImageBackground, StyleSheet, Text, View } from 'react-native';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
-import { useAppDispatch, useAppSelector } from '@/redux/store';
-import { registerThunk } from '@/redux/slices/authSlice';
 import colors from './constants/colors';
 
 export default function Register() {
@@ -35,14 +36,14 @@ export default function Register() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1080' }}
+      source={require('@/assets/images/splash.jpg')}
       style={styles.container}
     >
       <Stack.Screen options={{ headerShown: false }} />
       <LinearGradient colors={[colors.transparentBlack10, colors.transparentBlack70]} style={styles.gradient}>
         <View style={styles.logoContainer}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>LOGO</Text>
+            <Image source={require('@/assets/images/logo.jpg')}  />
           </View>
         </View>
 
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    height: '100%',
   },
   gradient: {
     flex: 1,

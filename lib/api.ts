@@ -100,6 +100,15 @@ export async function searchProducts(query: string) {
   return apiFetch(`/v1/products/search${q}`, { method: 'GET' });
 }
 
+// Product details
+export async function getProductById(id: string) {
+  return apiFetch(`/v1/products/${id}`, { method: 'GET' });
+}
+
+export async function getProductVariants(id: string) {
+  return apiFetch(`/v1/products/${id}/variants`, { method: 'GET' });
+}
+
 // Order examples (stubs aligned to docs signatures)
 export async function refundOrder(orderId: string) {
   return apiFetch(`/v1/order/${orderId}/refund`, { method: 'POST' });
@@ -128,6 +137,8 @@ export default {
   getCities,
   getProducts,
   searchProducts,
+  getProductById,
+  getProductVariants,
   refundOrder,
   paymentCallback,
   createOrder,

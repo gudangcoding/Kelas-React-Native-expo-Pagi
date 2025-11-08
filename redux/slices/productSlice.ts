@@ -18,7 +18,7 @@ const initialState: ProductState = {
 export const fetchProductsThunk = createAsyncThunk('product/fetchAll', async (_, { rejectWithValue }) => {
   try {
     const res = await api.getProducts();
-    return res?.data ?? [];
+    return (res as any)?.data ?? res;
   } catch (err: any) {
     return rejectWithValue(err?.message ?? 'Gagal mengambil produk');
   }
@@ -29,7 +29,7 @@ export const searchProductsThunk = createAsyncThunk(
   async (keyword: string, { rejectWithValue }) => {
     try {
       const res = await api.searchProducts(keyword);
-      return res?.data ?? [];
+      return (res as any)?.data ?? res;
     } catch (err: any) {
       return rejectWithValue(err?.message ?? 'Pencarian produk gagal');
     }
@@ -46,9 +46,21 @@ const productSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProductsThunk.fulfilled, (state, action: PayloadAction<any[]>) => {
+      .addCase(fetchProductsThunk.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        state.items = action.payload;
+        const payload = action.payload as any;
+        const normalized = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.items)
+          ? payload.items
+          : Array.isArray(payload?.data?.items)
+          ? payload.data.items
+          : Array.isArray(payload?.data?.records)
+          ? payload.data.records
+          : [];
+        state.items = normalized;
       })
       .addCase(fetchProductsThunk.rejected, (state, action: any) => {
         state.loading = false;
@@ -58,9 +70,21 @@ const productSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(searchProductsThunk.fulfilled, (state, action: PayloadAction<any[]>) => {
+      .addCase(searchProductsThunk.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        state.searchResults = action.payload;
+        const payload = action.payload as any;
+        const normalized = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.items)
+          ? payload.items
+          : Array.isArray(payload?.data?.items)
+          ? payload.data.items
+          : Array.isArray(payload?.data?.records)
+          ? payload.data.records
+          : [];
+        state.searchResults = normalized;
       })
       .addCase(searchProductsThunk.rejected, (state, action: any) => {
         state.loading = false;

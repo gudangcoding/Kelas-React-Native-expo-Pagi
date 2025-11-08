@@ -33,9 +33,15 @@ const categoriesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchCategoriesThunk.fulfilled, (state, action: PayloadAction<any[]>) => {
+      .addCase(fetchCategoriesThunk.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        state.items = action.payload;
+        const payload = action.payload;
+        const normalized = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+        state.items = normalized;
       })
       .addCase(fetchCategoriesThunk.rejected, (state, action: any) => {
         state.loading = false;

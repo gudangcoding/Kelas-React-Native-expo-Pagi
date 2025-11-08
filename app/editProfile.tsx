@@ -1,24 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Pressable, ScrollView, Image, Modal } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import colors from './constants/colors';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
+import { useAppSelector } from '@/redux/store';
+import * as api from '@/lib/api';
 
 export default function EditProfile() {
   const router = useRouter();
+  const { user } = useAppSelector((s) => s.auth);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [avatarSource, setAvatarSource] = useState<any>(require('../assets/images/icon.png'));
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('john@example.com');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('081234567890');
-  const [province, setProvince] = useState('Jawa Barat');
-  const [city, setCity] = useState('Bandung');
-  const [address, setAddress] = useState('Jl. Contoh No. 123, Kec. Coblong');
+  const [phone, setPhone] = useState('');
+  const [province, setProvince] = useState('');
+  const [city, setCity] = useState('');
+  const [address, setAddress] = useState('');
 
   const openPhotoModal = () => setPhotoModalOpen(true);
   const closePhotoModal = () => setPhotoModalOpen(false);
@@ -40,11 +45,46 @@ export default function EditProfile() {
     router.back();
   };
 
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      if (!user?.id) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.getProfile(String(user.id));
+        const data = (res as any)?.data ?? res?.data ?? {};
+        if (mounted && data) {
+          setName(String(data?.name ?? ''));
+          setEmail(String(data?.email ?? ''));
+          setPhone(String(data?.phone ?? ''));
+          setProvince(String(data?.province ?? ''));
+          setCity(String(data?.city ?? ''));
+          setAddress(String(data?.address ?? ''));
+        }
+      } catch (err: any) {
+        if (mounted) setError(err?.message ?? 'Gagal mengambil profil');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerTitle: 'Edit Profil', headerTintColor: colors.grayDark }} />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
+          {loading && (
+            <Text style={{ color: colors.gray }}>Memuat profil...</Text>
+          )}
+          {error && (
+            <Text style={{ color: colors.danger }}>{error}</Text>
+          )}
           <View style={styles.avatarRow}>
             <Image source={avatarSource} style={styles.avatar} />
             <Pressable style={styles.changePhotoBtn} onPress={openPhotoModal} accessibilityRole="button">

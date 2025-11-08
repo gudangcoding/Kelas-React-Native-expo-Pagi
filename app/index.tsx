@@ -1,8 +1,9 @@
+import { useAppSelector } from '@/redux/store';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, ImageBackground, StyleSheet, Text, View } from 'react-native';
-import { useAppSelector } from '@/redux/store';
 
 export default function Index() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function Index() {
           ]}
         >
           <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>LOGO</Text>
+            <Image source={require('@/assets/images/logo.jpg')}  />
           </View>
           <Text style={styles.appName}>LKP Naura</Text>
           <Text style={styles.tagline}>Kursus Komputer Bersertifikat</Text>

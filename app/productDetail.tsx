@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Image, ScrollView, Pressable, Dimensions } from 'react-native';
-import { Stack, useRouter, useNavigation } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SafeAreaView, View, Text, StyleSheet, Image, ScrollView, Pressable, Dimensions, ActivityIndicator } from 'react-native';
+import { Stack, useRouter, useNavigation, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import colors from './constants/colors';
+import * as api from '@/lib/api';
+import { useAppDispatch } from '@/redux/store';
+import { addItem } from '@/redux/slices/cartSlice';
 
 const { width } = Dimensions.get('window');
 const imageHeight = Math.round(width * 0.75);
@@ -25,6 +28,15 @@ const formatPrice = (price: number | string) => {
 export default function ProductDetail() {
   const router = useRouter();
   const navigation = useNavigation();
+  const params = useLocalSearchParams();
+  const dispatch = useAppDispatch();
+  const productId = useMemo(() => (params?.id ? String(params.id) : null), [params?.id]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [product, setProduct] = useState<any | null>(null);
+  const [variantsData, setVariantsData] = useState<any[]>([]);
+
   const handleBack = () => {
     // If there's navigation history, go back. Otherwise, return to Home.
     if (typeof navigation?.canGoBack === 'function' && navigation.canGoBack()) {
@@ -33,18 +45,48 @@ export default function ProductDetail() {
       router.replace('/');
     }
   };
-  // Sample product data; can be replaced with params or API later
-  const title = 'Kamera Mirrorless 24MP + Lensa Kit 15-45mm';
-  const price = 4250000;
-  const ratingValue = 4.6;
-  const ratingCount = 157;
   const image = require('../assets/images/react-logo.png');
 
-  const variants = ['Hitam', 'Putih', 'Merah'];
-  const sizes = ['S', 'M', 'L', 'XL'];
-  const [variant, setVariant] = useState<string>(variants[0]);
-  const [size, setSize] = useState<string>(sizes[1]);
+  // Variants & sizes default until API returns
+  const [variant, setVariant] = useState<string>('Default');
+  const [size, setSize] = useState<string>('M');
   const [isLiked, setIsLiked] = useState<boolean>(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      if (!productId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const [pRes, vRes] = await Promise.all([
+          api.getProductById(productId as string),
+          api.getProductVariants(productId as string),
+        ]);
+        if (mounted) {
+          setProduct((pRes as any)?.data ?? pRes?.data ?? null);
+          const vData = (vRes as any)?.data ?? vRes?.data ?? [];
+          setVariantsData(Array.isArray(vData) ? vData : []);
+          // preselect variant/size if available
+          if (Array.isArray(vData) && vData.length > 0) {
+            const first = vData[0];
+            const vName = first?.option_name ?? 'Default';
+            setVariant(String(vName));
+            const val = first?.values?.[0]?.value ?? 'M';
+            setSize(String(val));
+          }
+        }
+      } catch (err: any) {
+        if (mounted) setError(err?.message ?? 'Gagal memuat produk');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [productId]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -58,20 +100,31 @@ export default function ProductDetail() {
           <Image source={image} style={styles.image} resizeMode="cover" />
 
           <View style={styles.content}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.price}>{formatPrice(price)}</Text>
+            {loading && (
+              <View style={{ paddingVertical: 8 }}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            )}
+            {error && (
+              <Text style={{ color: colors.danger, marginBottom: 8 }}>{error}</Text>
+            )}
+            <Text style={styles.title}>{product?.title ?? product?.name ?? 'Produk'}</Text>
+            <Text style={styles.price}>{formatPrice(product?.price ?? 0)}</Text>
 
             <View style={styles.ratingRow}>
               <Feather name="star" size={18} color={colors.warning} />
-              <Text style={styles.ratingValue}>{ratingValue.toFixed(1)}</Text>
-              <Text style={styles.ratingCount}>({ratingCount})</Text>
+              <Text style={styles.ratingValue}>{Number(product?.rating ?? 4.6).toFixed(1)}</Text>
+              <Text style={styles.ratingCount}>({product?.rating_count ?? 157})</Text>
             </View>
 
             <View style={{ height: 16 }} />
 
             <Text style={styles.sectionLabel}>Varian</Text>
             <View style={styles.chipsRow}>
-              {variants.map((v) => {
+              {(variantsData.length > 0
+                ? variantsData.map((vd) => String(vd?.option_name ?? 'Default'))
+                : ['Default']
+              ).map((v) => {
                 const active = v === variant;
                 return (
                   <Pressable
@@ -89,7 +142,7 @@ export default function ProductDetail() {
 
             <Text style={styles.sectionLabel}>Ukuran</Text>
             <View style={styles.chipsRow}>
-              {sizes.map((s) => {
+              {(variantsData.find((vd) => String(vd?.option_name ?? 'Default') === variant)?.values?.map((val: any) => String(val?.value)) ?? ['S', 'M', 'L', 'XL']).map((s: string) => {
                 const active = s === size;
                 return (
                   <Pressable
@@ -107,7 +160,7 @@ export default function ProductDetail() {
 
             <Text style={styles.sectionLabel}>Deskripsi</Text>
             <Text style={styles.description}>
-              Kamera mirrorless dengan sensor 24MP, cocok untuk fotografi sehari-hari dan konten kreator. Dilengkapi lensa kit 15-45mm, stabilisasi gambar, dan konektivitas nirkabel untuk memudahkan transfer foto.
+              {product?.description ?? 'Tidak ada deskripsi produk.'}
             </Text>
           </View>
         </ScrollView>
@@ -117,7 +170,16 @@ export default function ProductDetail() {
             <Feather name="heart" size={20} color={isLiked ? colors.danger : colors.grayDark} />
             <Text style={[styles.wishlistText, { color: isLiked ? colors.danger : colors.grayDark }]}>Wishlist</Text>
           </Pressable>
-          <Pressable style={styles.cartBtn} onPress={() => {}}>
+          <Pressable
+            style={styles.cartBtn}
+            onPress={() => {
+              if (!productId) return;
+              const name = String(product?.title ?? product?.name ?? 'Produk');
+              const price = Number(product?.price ?? 0);
+              dispatch(addItem({ id: productId, name, price, qty: 1, variant, size }));
+              router.push('/cart');
+            }}
+          >
             <Feather name="shopping-cart" size={20} color={colors.onPrimary} />
             <Text style={styles.cartText}>Tambah ke Keranjang</Text>
           </Pressable>
